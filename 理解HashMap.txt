@@ -1,0 +1,24 @@
+理解HashMap
+===========
+
+1, 直观的来说, HashMap是存储按kv方式存储数据的数据结构.
+HashMap(jdk8)源码前面包含了一大段注释, 基本描述的HashMap类的设计与实现.
+按段粗略翻译如下:
+  Hash表基于Map接口的实现. 这个实现提供了所有可选的map操作, 且允许null值和null键. (HashMap
+  类大致等价于Hashtable, 除了其非线程安全和允许nulls特性) 这个类不保证其内数据的顺序, 尤其
+  不保证随着时间变化, 其内数据顺序保持不变.
+  假定hash功能合理的将元素分散值不同的bucket情况下, 该实现对get和put操作提供常量级性能. 集合视图上的迭代(重复反馈)
+  所需时间与HashMap实例的容量(capacity, bucket数量) 和其size(k-v mappings的数量)之和成正比, 因此, 在考虑迭代性能的情况
+  下不要设置一个特别大的初始容量(或加载因子太小).
+  HashMap有两个参数可以影响其性能: initial capacity 和 load factor.
+  初始容量是Hash表中bucket(桶)的数量
+  加载因子是Hash表进行表扩容之前, Hash表容纳多少entry的程度.
+  当Hash表中entry的数量超出了 load factor或当前容量, Hash表将rehashed(重hash, 也就是说整个内部数据结构将重建),
+  使之bucket数量2倍于之前bucket的数量.
+  作为一个常用规则, 默认load factor(.75)在时间和空间取得了较好的平衡(原话trade off).更高的值降低了空间overhead(浪费)
+  但是增加了查找耗时(影响大部分HashMap操作, 包括get和put)
+
+
+
+参考资料:
+  1, http://rkhcy.github.io/2017/12/03/%E5%9B%BE%E8%A7%A3HashMap(%E4%B8%80)/
