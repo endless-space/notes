@@ -1,0 +1,55 @@
+JVM的垃圾收集
+============
+
+那些对象需要回收?
+什么时候回收?
+怎样回收?
+
+1, 垃圾收集算法
+  1.1 回收对象的查找算法(确认无用对象) 或 对象存活性判断
+    引用计数: 每个对象记录自己被引用的次数, 无法处理无用对象间的循环引用.
+    可达性分析: GC root出发的可达对象图为有效对象. hotspot采用这种.
+  1.2 回收算法
+    标记-清除(Mark-Sweep): 产生内存碎片, 低效.
+    复制(Copying): 浪费空间(原始实现2倍空间), 高效.
+    标记-整理(Mark-Compact, 或标记-压缩): 避免碎片, 低效, STW时间长. 整理后, 新对象内存分配通过pointer-bumping即可完成.
+
+2, 垃圾收集器(hotspot主流垃圾收集器)
+  SafePoint及暂停用户线程, 对象图停止变化的情况.
+
+  Serial GC: 单cpu场景, 单线程串行回收, STW, -XX:+UseSerialGC
+    Serial GC 作用与新生代, 使用复制算法, 新生代分为eden from to, from to用于复制(针对新生代对象朝生夕死特性).
+    Serial Old GC 作用与老年代, 标记-整理算法
+
+  Throughput/Parallel GC: 适合吞吐量要求高的场景, 并行回收, SWT, -XX:+UseParallelGC, -XX:+UseParNewGC, XX:+UseParallelOldGC
+    ParNew: 就是Serial多线程升级版, 和Parallel Scavenge的区别在于后者更加注重吞吐量指标.
+    Parallel 作用与新生代: 复制算法
+    Parallel Old 作用于老年代: 标记-整理算法
+
+  CMS GC: 适合停顿时间最小的场景, 会产生碎片浪费内存. -XX:+UseConcMarkSweepGC
+    Concurrent-Mark-Sweep: 老年代垃圾回收器, 标记清除, 分为:
+      初始标记(Initial-Mark, STW): 初始标记GC Root直接关联对象
+      并发标记(Concurrent-Mark): 接着上一步继续并发标记
+      再次标记(Remark, STW): 
+      并发清除(Concurrent-Sweep)
+    由于用户线程和GC线程并发运行, 新对象仍需分配, cms不会在老年代满的时候才分配, 默认68% cms就开始启动云心烦.
+    该阈值可通过 –XX:CMSInitiatingOccupancyFraction=n 设置.
+
+  G1 GC: -XX:UseG1GC, 吞吐量和停顿优于cms
+    将Java堆划分为2048个大小相同的Region, 仅在逻辑上划分新生代和老年代, 使用标记整理
+
+3, 引用类型
+  3.1 强引用: 一般的有效引用类型.
+  3.2 软引用: SoftReference, 软应用关联对象在内存不足时会被回收, 适合缓存对象.
+  3.3 弱引用: WeakReference, 弱引用关联对象在被垃圾回收器扫描到即被回收.
+  3.4 虚引用: PhantomReference, 在任何时候都可能被回收, 虚引用必须和引用队列关联.
+
+
+资料:
+  1. https://zhuanlan.zhihu.com/p/28258571
+  2. http://www.wxtlife.com/2016/04/25/java-jvm-gc/
+  3. http://wangnan.tech/post/java-gc-collector/
+  4. https://www.zhihu.com/question/19912197/answer/113385483
+  5. http://www.infoq.com/cn/articles/why-jvm-need-gc
+  6. https://zhuanlan.zhihu.com/p/22591838
+

@@ -7,6 +7,7 @@ HashMap(jdk8)源码前面包含了一大段注释, 基本描述的HashMap类的�
   Hash表基于Map接口的实现. 这个实现提供了所有可选的map操作, 且允许null值和null键. (HashMap
   类大致等价于Hashtable, 除了其非线程安全和允许nulls特性) 这个类不保证其内数据的顺序, 尤其
   不保证随着时间变化, 其内数据顺序保持不变.
+
   假定hash功能合理的将元素分散值不同的bucket情况下, 该实现对get和put操作提供常量级性能. 集合视图上的迭代(重复反馈)
   所需时间与HashMap实例的容量(capacity, bucket数量) 和其size(k-v mappings的数量)之和成正比, 因此, 在考虑迭代性能的情况
   下不要设置一个特别大的初始容量(或加载因子太小).
@@ -16,9 +17,27 @@ HashMap(jdk8)源码前面包含了一大段注释, 基本描述的HashMap类的�
   当Hash表中entry的数量超出了 load factor或当前容量, Hash表将rehashed(重hash, 也就是说整个内部数据结构将重建),
   使之bucket数量2倍于之前bucket的数量.
   作为一个常用规则, 默认load factor(.75)在时间和空间取得了较好的平衡(原话trade off).更高的值降低了空间overhead(浪费)
-  但是增加了查找耗时(影响大部分HashMap操作, 包括get和put)
+  但是增加了查找耗时(影响大部分HashMap操作, 包括get和put), Hash表中期待的entry数量和load factor都应该考虑在内以此降低rehash操作的次数.
+  如果初始的容量大于, 期待entry数量除以load factor, 那么rehash操作将不会发生.
 
-
+  HashMap实现不是线程安全的. 当多个线程并发的访问一个HashMap实例且至少有一个线程在做结构化修改(增删, 改不属于结构话修改)时,  那么这些操作必须是外部同步过了的,
+  通常这个工作是由封装了该map的对象上进行线程同步完成的. 如果没有此类对象, 那么map对象应当使用collections.synchronizedMap方法
+  进行包装. 这个操作应当在创建的使用进行, 以防止对map的意外访问. 迭代操作由该类的"集合视图"提供, 这些操作都是"fail-fast"
+  当迭代器创建完成后的 map结构操作.并发操作迭代器将导致异常.
+我的总结:
+  HashMap类继承自AbstractMap类, 实现了Map接口, 和Cloneable, Serialiable两个标记接口.
+  Map接口定义了基本行为
+  AbstractMap做了框架化实现
+  HashMap大致等价于Hashtable, 但是HashMap允许nulls和非线程安全特性.
+  HashMap内部存储数据的无序性.
+  HashMap有两个影响性能的参数: initial capacity, load factor
+  HashMap的基本构成: bucket数组, bucket数组用于存储元素(kv mapping, entry, node), 当单链表长度超过8, 将转化为红黑树.
+要点:
+  哈希函数就是能将任意长度的数据映射为固定长度的数据的函数。
+  哈希函数返回的值被叫做哈希值、哈希码、散列，或者直接叫做哈希。
+  一个使用场景就是哈希表，哈希表被广泛用于快速搜索数据。
+  哈希表是一种能实现关联数组的抽象数据结构，能把很多「键」映射到很多「值」上。
+  哈希表使用哈希函数来计算索引，一个索引对应一个值。
 
 参考资料:
   1, http://rkhcy.github.io/2017/12/03/%E5%9B%BE%E8%A7%A3HashMap(%E4%B8%80)/

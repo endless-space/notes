@@ -1,0 +1,33 @@
+Java集合框架(JCF, Java Collection Framework)
+============================================
+
+1. JCF是Java类库提供的一组常用数据结构的实现.
+  容器(Collection)是包含一组对象的对象.
+  容器(Collection)只能存放对象, 基本数据类型需要转换(自动拆装箱完成)为对象类型才能放到容器.
+  容器(Collection)内部存放的都是Object对象, 泛型只在语言层面简化编程, 类的单继承体系保证这一特性.
+
+2. JCF定义了14中容器接口, 来保证各具体实现的基本行为操作.
+  2.1 Collection(Set, List, Queue)
+    List: 包含一组对象
+    Set(SortedSet, NavigableSet): 包含不重复对象
+    Queue(BlockingQueue, TransferQueue, Deque, BlockingDeque): 遵循FIFO
+
+  2.2 Map: 保存kv映射
+    SortedMap
+    NavigableMap
+    ConcurrentMap
+    ConcurrentNavigableMap
+
+3. 具体实现
+  ArrayList
+  LinkedList
+  CopyOnWriteArrayList
+
+4. 迭代器(Iterator)
+  迭代器提供了遍历容器元素的机制, 迭代器有容器提供, 可显式编程, 也可通过语法糖.
+
+
+资料:
+  A. https://docs.oracle.com/javase/8/docs/technotes/guides/collections/overview.html
+  B. http://calvin1978.blogcn.com/articles/collection.html
+  C. http://www.cnblogs.com/CarpenterLee/p/5419880.html
