@@ -1,0 +1,27 @@
+Vagrant 是一个虚拟机管理工具, 主要用与开发环境构建, 分发.
+
+vagrant-vbguest: A Vagrant plugin to keep your VirtualBox Guest Additions up to date
+
+bento: Packer templates for building minimal Vagrant baseboxes.
+Vaprobash: Vagrant Provisioning Bash Scripts
+vagrant-triggers: Allow the definition of arbitrary scripts that will run on the host before and/or after Vagrant commands.
+
+shutit: Automation framework for programmers
+
+ansible-tuto: Ansible tutorial
+ansible-for-devops: Ansible examples from Ansible for DevOps.
+molecule: Molecule aids in the development and testing of Ansible roles.
+
+vagrant-hostmanager: A Vagrant plugin that manages hosts files within a multi-machine environment.
+vagrant-hostsupdater:
+landrush: A Vagrant plugin that provides a simple DNS server for Vagrant guests
+vagrant-proxyconf: Vagrant plugin that configures the virtual machine to use proxies
+vagrant-dns: A plugin to manage DNS records for vagrant environments
+
+vagrant-cachier:
+rove: Rove is a service that allows you to pregenerate typical Vagrant builds
+
+sahara: a plugin for vagrant that allows you manage a sandbox state
+
+vagrant-disksize: Vagrant plugin to resize disks in VirtualBox
+
