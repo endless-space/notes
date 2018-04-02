@@ -1,0 +1,10 @@
+网络接口配置正确
+指定唯一ip与主机名
+  ip address list(add)
+DNS服务器
+基本路由配置
+  ip route list
+  route -n
+
+iproute2命令替换基本的nettools.
+  

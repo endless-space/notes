@@ -1,0 +1,94 @@
+Kubernetes勤修之道
+
+1. 系统部署
+1.1 手工部署一次kubernetes集群, 以理解在搭建kubernetes集群过程每项任务的意义, 之后请使用标准化的自动部署(可得到社群的长期支持)
+  目标: 搭建一个高可用, 安全(端对端的机密通信, RBAC认证)的kubernetes集群
+  集群概况:
+    Kubernetes 1.8.0 => 容器集群编排管理系统
+    cri-containerd Container Runtime 1.0.0-alpha.0 => kubernetes 容器运行时接口的一个实现
+    CNI Container Networking 0.6.0 => 容器网络接口
+    etcd 3.2.8 可靠的分布式KV存储系统
+  安全性:
+    系统安全性在系统建立之前就应当充分考虑, kubernetes从哪些方面去考虑安全问题?
+
+  安装客户端工具:
+    PKI, 公钥基础设施, 是网络安全的基础核心之一. PKI采用证书进行公钥管理, 通过CA将公钥及其他信息绑定  
+    cfssl是CloudFlare的PKI的工具集, 用于维护PKI基础设施, 建立授权中心, 为后续各组件(etcd, kube-apiserver, kubelet, kube-proxy)生成TLS证书.
+
+    kubectl
+    生成kubeconfigs, 配置kubernetes client连接至kube-apiserver, 并进行认证
+
+  物理机器(计算资源)配置, 
+    各组件最终运行在物理机器上, 先对这些计算资源进行配置
+    机器:
+      一个master, 2个node
+    网络:
+      kubernetes网络模型 需要一个扁平的网络结构 容器和各节点可以互通有无
+
+  启动etcd集群:
+    kubernetes各组件均为无状态程序, 集群状态存储在etcd中, 配置一个3节点etcd集群, 使之具备高可用, 安全访问的特性.
+
+A. 附录(全程以linux为主)
+  A.1 安装cfssl, cfssljson
+    wget  https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+    chmod +x cfssl_linux-amd64 cfssljson_linux-amd64
+    mv cfssl_linux-amd64 cfssl
+    mv cfssljson_linux-amd64 cfssljson
+    * 将两条命令加入环境变量
+    cfssl version
+
+    cfssl 是cloudflare的PKI/TLS 工具集. 同时提供了命令行接口和Http API用于签发, 校验, 构建TLS证书.
+    cfssl 程序是使用CFSSL包的命令行工具.
+    multirootca 程序是一个可以使用多个签名key的CA(certificate authority)服务器
+    mkbundle通常用于构建证书池.
+    cfssljson程序, 获得从cfssl和multirootca程序的json输出,写出证书, keys, CSRs和bundle至磁盘.
+
+  A.2 安装kubectl
+    wget https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl
+    chmod +x kubectl
+
+  A.3 配置CA
+    创建CA配置文件
+    cat > ca-config.json <<EOF
+    {
+      "signing": {
+        "default": {
+          "expiry": "8760h"
+        },
+        "profiles": {
+          "kubernetes": {
+            "usages": ["signing", "key encipherment", "server auth", "client auth"],
+            "expiry": "8760h"
+          }
+        }
+      }
+    }
+    EOF
+
+    创建一个CA证书申请
+    cat > ca-csr.json <<EOF
+    {
+      "CN": "Kubernetes",
+      "key": {
+        "algo": "rsa",
+        "size": 2048
+      },
+      "names": [
+        {
+          "C": "US",
+          "L": "Portland",
+          "O": "Kubernetes",
+          "OU": "CA",
+          "ST": "Oregon"
+        }
+      ]
+    }
+    EOF
+
+B. 参考资料
+  1, https://github.com/kelseyhightower/kubernetes-the-hard-way
+  2, https://github.com/hobby-kube/guide#kubernetes-clusters-for-the-hobbyist
+  3, https://mritd.me/
+  4, https://github.com/ramitsurana/awesome-kubernetes
+
+https://developers.redhat.com/blog/2018/02/22/container-terminology-practical-introduction/
